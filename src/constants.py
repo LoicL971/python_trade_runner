@@ -1,0 +1,12 @@
+OPTIONALUNDEF = "Optional undefined"
+CLOSED = "Closed"
+POSITION = "Position"
+RUNNING = "Running"
+STOPPED = "Stopped"
+SUCCESS = "Success"
+OVERTIMED = "Overtimed"
+POSCANCELED = "Position canceled"
+LONG = 1
+SHORT = -1
+FEESMAKER = 0
+FEESTAKER = 1
