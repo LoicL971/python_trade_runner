@@ -1,12 +1,14 @@
-from src.chart import Chart
-from src.pattern import *
-from src.trade import TradeBuilder
 import re
+
+from .chart import Chart
+from .pattern import *
+from .trade import TradeBuilder
+from .visuals import Visual
 
 id_max = 0
 
-def create_dict_visuals(visuals):
-    dict_visuals = {}
+def create_dict_visuals(visuals: list[tuple[datetime, float]]) -> dict[str, list[float]]:
+    dict_visuals: dict[str, list[float]] = {}
     for key,val in visuals:
         if key in dict_visuals:
             if not(val in dict_visuals[key]):
@@ -25,22 +27,22 @@ class Setup(object):
     def get_new_points(self, d:Chart):
         points_list = [[]]
         points_visuals = [[]]
-        for func in self.pattern_list:
-            points_list,points_visuals = func.apply_pattern(d=d, points_list=points_list, points_visuals=points_visuals)
+        for pattern in self.pattern_list:
+            points_list,points_visuals = pattern.apply_pattern(d=d, points_list=points_list, points_visuals=points_visuals)
         return points_list,points_visuals
     
-    def get_new_trades(self, d:Chart, dt_position, risk, balance):
+    def get_new_trades(self, d:Chart, dt_position: datetime, risk: float, balance: float):
         trades_list = []
         points_list,points_visuals = self.get_new_points(d)
         for i in range(len(points_list)):
             points = points_list[i]
             visuals = points_visuals[i]
             dict_visuals = create_dict_visuals(visuals)
-            t = self.trade_builder.get_trade(d, points, self.id_setup, dt_position, risk, balance, dict_visuals)
+            t = self.trade_builder.create_trade(d, points, self.id_setup, dt_position, risk, balance, dict_visuals)
             trades_list.append(t)
         return trades_list
             
-## SERIALIZATION OF PatternLIST : 
+## DESERIALIZATION OF PatternLIST : 
 # delimiters between list obj "$",
 # delimiters between params "&" 
 # naming :  pa+code add function
@@ -132,7 +134,7 @@ def deserialize_pattern_list(serialized_list:str) -> list[Pattern]:
     return pattern_list
 
    
-## SERIALIZATION OF TRADE BUILDER : 
+## DESERIALIZATION OF TRADE BUILDER : 
 # delimiters between params $ 
 # delimiters between list obj "&",
 # delimiters between tuple obj "!",
@@ -159,7 +161,7 @@ def create_list(serialized_list:str):
         return create_tuple(serialized_list)
 
 
-def deserialize_trade_builer(serialised_trade_builder:str):
+def deserialize_trade_builer(serialised_trade_builder:str) -> TradeBuilder:
     args = []
     p_list = serialised_trade_builder.split("$") 
     for parameter in p_list:

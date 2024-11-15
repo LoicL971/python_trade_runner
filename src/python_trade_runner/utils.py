@@ -1,16 +1,17 @@
-import datetime
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from src.constants import LONG, SHORT
+
+from .constants import LONG, SHORT
 
 class Interval(Enum):
-    M1:datetime.timedelta = datetime.timedelta(seconds=60)
-    M5:datetime.timedelta = datetime.timedelta(seconds=300)
-    M15:datetime.timedelta = datetime.timedelta(seconds=900)
-    M30:datetime.timedelta = datetime.timedelta(seconds=1800)
-    H1:datetime.timedelta = datetime.timedelta(seconds=3600)
-    H4:datetime.timedelta = datetime.timedelta(seconds=14400)
-    H12:datetime.timedelta = datetime.timedelta(seconds=43200)
-    D1:datetime.timedelta = datetime.timedelta(seconds=86400)
+    M1:timedelta = timedelta(seconds=60)
+    M5:timedelta = timedelta(seconds=300)
+    M15:timedelta = timedelta(seconds=900)
+    M30:timedelta = timedelta(seconds=1800)
+    H1:timedelta = timedelta(seconds=3600)
+    H4:timedelta = timedelta(seconds=14400)
+    H12:timedelta = timedelta(seconds=43200)
+    D1:timedelta = timedelta(seconds=86400)
 
     def __lt__(self, other):
         return self.value < other.value
@@ -26,11 +27,11 @@ class Interval(Enum):
     
     def round_time(self, dt:datetime):
         if self < Interval.H1:
-            return datetime.datetime(year = dt.year, month = dt.month, day = dt.day, hour = dt.hour, minute= int(self.value.total_seconds()/60*(dt.minute//(self.value.total_seconds()/60))), tzinfo=datetime.timezone.utc)
+            return datetime(year = dt.year, month = dt.month, day = dt.day, hour = dt.hour, minute= int(self.value.total_seconds()/60*(dt.minute//(self.value.total_seconds()/60))), tzinfo=timezone.utc)
         elif self < Interval.D1:
-            return datetime.datetime(year = dt.year, month = dt.month, day = dt.day, hour = int(self.value.total_seconds()/3600*(dt.hour//(self.value.total_seconds()/3600))), tzinfo=datetime.timezone.utc)
+            return datetime(year = dt.year, month = dt.month, day = dt.day, hour = int(self.value.total_seconds()/3600*(dt.hour//(self.value.total_seconds()/3600))), tzinfo=timezone.utc)
         else:
-            return datetime.datetime(year = dt.year, month = dt.month, day = dt.day, tzinfo=datetime.timezone.utc)
+            return datetime(year = dt.year, month = dt.month, day = dt.day, tzinfo=timezone.utc)
 
     def create_first_datetime(self, start):
         dt = self.round_time(start)

@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from time import time
 from scipy.optimize import fsolve
 
 def printall(coll):
@@ -53,22 +51,3 @@ def risk_to_use(max_drawdown:float, wr:float, R:float, trade_streak:int, sample_
     risk = fsolve(f, 0.005)
     print(f"Percentile {get_percentile(likelihood, risk, wr, R, trade_streak, sample_size)}")
     return risk
-
-
-
-max_drawdown = 0.20
-t = time()
-wr = 0.3815
-R = 2.097
-risk0 = 0.01
-trade_streak = 1000
-sample_size = 100000
-likelihood = 0.70
-# print(f"Percentile {get_percentile(0.9, risk, wr, R, trade_streak, sample_size)}")
-risk = risk_to_use(max_drawdown, wr, R, trade_streak, sample_size, likelihood)[0]
-print(f"Risk to use : {risk}")
-plt.hist(get_max_drawdowns2(risk, wr, R, trade_streak, sample_size),bins='auto')
-plt.show()
-
-print(f"Time spent {time()-t}")
-# np.random.Generator.binomial(1, wr, trade_streak)

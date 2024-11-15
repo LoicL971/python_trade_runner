@@ -1,14 +1,15 @@
-import datetime
+from datetime import datetime
 import logging
 import pickle as pkl
-from src.constants import *
-from src.utils import Exchange,Symbol,Interval
-import pandas as pd
-from src.trade import Trade
-from src.chart import Chart
-from src.visuals import show_trade,plot_balances
 import numpy as np
 import os
+import pandas as pd
+
+from .chart import Chart
+from .constants import *
+from .trade import Trade
+from .utils import Exchange,Symbol,Interval
+from .visuals import show_trade,plot_balances
 
 
 formatter = logging.Formatter('%(message)s')
@@ -25,25 +26,29 @@ def setup_logger(name, log_file, level=logging.INFO):
     return logger
 
 
-class ResultAnalyser(object):
-    def __init__(self, exchange:Exchange, symbol:Symbol, interval:Interval, running_trades, archieved_trades):
-        self.dts = []
+class PerformanceAnalyser(object):
+    """
+    Utilitary class used to builds performance metrics about a setup when performing a backtest
+    """
+    def __init__(self, exchange:Exchange, symbol:Symbol, interval:Interval, running_trades: list[Trade], archieved_trades: list[Trade]):
+        self.dts: list[datetime] = []
+        #TODO: use datetime64 from np
         self.historical_balances = np.array([])
         self.still_running_trades:list[Trade] = running_trades
         self.archieved_trades:list[Trade] = archieved_trades
         self.exchange, self.symbol, self.interval = exchange, symbol, interval
-        self.analysed = False
+        self.analysed: bool = False
         self.df_trades:pd.DataFrame = None
-        self.wr = None
-        self.R = None
-        self.dd = None
-        self.scc = None
-        self.stp = None
-        self.ccl = None
-        self.perf = None
+        self.wr: float = None
+        self.R: float = None
+        self.dd: float = None
+        self.scc: int = None
+        self.stp: int = None
+        self.ccl: int = None
+        self.perf: float = None
 
 
-    def put_data(self, current_dt:datetime.datetime, balance):
+    def put_data(self, current_dt:datetime, balance):
         self.dts.append(current_dt)
         self.historical_balances = np.append(self.historical_balances, balance)
         if self.analysed:
@@ -88,9 +93,9 @@ class ResultAnalyser(object):
             current_gain.append(t.gain)
             current_gain_coeff.append(t.gain/(t.qty*abs(t.entry-t.market_stop)))
             if t.closed_state == SUCCESS or t.closed_state == STOPPED:
-                current_R.append(abs((t.target-t.entry_price)/(t.entry_price-t.market_stop)))
-                current_fees_entry.append(t.fees_entry*t.entry_price/dl)
-                current_fees_exit.append(t.fees_exit*t.exit_price/dl)
+                current_R.append(abs((t.target-t.entry_prices)/(t.entry_prices-t.market_stop)))
+                current_fees_entry.append(t.fees_entry*t.entry_prices/dl)
+                current_fees_exit.append(t.fees_exit*t.exit_prices/dl)
             else:
                 current_R.append(None)
                 current_fees_entry.append(None)
@@ -137,19 +142,6 @@ class ResultAnalyser(object):
             self.count_trades()
             self.analysed = True
 
-    def result_dict(self):
-        res = {}
-        historical_balances = self.get_historical_balances()
-        res["historical_balances"] = {self.dts[i].isoformat(): historical_balances[i] for i in range(len(historical_balances))}
-        res["final_gain"] = (historical_balances[-1]-historical_balances[0])/historical_balances[0]
-        res["winrate"] = self.get_winrate()
-        res["mean_R"] = self.get_r()
-        res["max_drawdown"] = self.get_max_drawdown()
-        res["succes_count"] = self.get_nb_success()
-        res["stopped_count"] = self.get_nb_stopped()
-        res["mean_trade_perf"] = self.get_perf()
-        return res
-
     def plot_balances(self):
         self.analyse()
         plot_balances(self.dts, self.historical_balances)
@@ -157,9 +149,9 @@ class ResultAnalyser(object):
     def show_archieved_trade(self, t, width=1, show=True):
         st = t.points[0]
         end = t.dt_closed
-        window_sizeh = (end - st)*width
-        st = st - window_sizeh
-        end = end + window_sizeh
+        window_t_delta = (end - st)*width
+        st = st - window_t_delta
+        end = end + window_t_delta
         d = Chart(self.exchange, self.symbol, self.interval, st, end)
         return show_trade(d, t, show)
 
@@ -200,16 +192,16 @@ class ResultAnalyser(object):
     def fill_ended_trade_logger(self, logger):
         for t in self.archieved_trades:
             if t.closed_state == SUCCESS or t.closed_state == STOPPED:
-                msg = t.ended_str()+"\n"
+                msg = t.ended_trade_to_str()+"\n"
                 logger.info(msg)
 
 
-def show_saved_trade(t, exchange, symbol, interval, width=1, show=True):
+def show_saved_trade(t: Trade, exchange, symbol, interval, width=1, show=True):
     st = t.points[0]
     end = t.dt_closed
-    window_sizeh = (end - st)*width
-    st = st - window_sizeh
-    end = end + window_sizeh
+    window_t_delta = (end - st)*width
+    st = st - window_t_delta
+    end = end + window_t_delta
     d = Chart(exchange, symbol, interval, st, end)
     return show_trade(d, t, show)
 
