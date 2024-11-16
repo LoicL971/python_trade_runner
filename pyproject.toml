@@ -1,7 +1,46 @@
 [build-system]
-requires = ["setuptools>=61", "wheel", "setuptools_scm[toml]>=7"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "python_trade_runner"
+authors = [
+    {name = "Loic Ledreck", email = "loic.ledreck@gmail.com"},
+]
+description = "Helper for backtesting and running trading strategies"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pandas",
+    "numpy",
+    "plotly",
+    "scipy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest", 
+    "matplotlib"
+]
+
+[project.urls]
+Homepage = "https://strategymaker.net"
+Repository = "https://github.com/loicl971/python_trade_runner"
+Issues = "https://github.com/loicl971/python_trade_runner/issues"
+
+# [tool.setuptools.dynamic]
+# version = {attr = "python_trade_runner.__version__"}
 
 [tool.setuptools_scm]
 write_to = "python_trade_runner/version.py"
 write_to_template = "__version__ = '{version}'\n"
+local_scheme = "no-local-version"
+
