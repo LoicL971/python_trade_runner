@@ -3,7 +3,6 @@ dist/
 __pycache__/
 
 # Others
-*.csv
 *.pkl
 .vscode/
 main.py

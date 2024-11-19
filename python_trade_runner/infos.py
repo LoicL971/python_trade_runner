@@ -26,7 +26,7 @@ def setup_logger(name, log_file, level=logging.INFO):
     return logger
 
 
-class PerformanceAnalyser(object):
+class PerformanceManager(object):
     """
     Utilitary class used to builds performance metrics about a setup when performing a backtest
     """
@@ -170,52 +170,10 @@ class PerformanceAnalyser(object):
                 if t.closed_state != POSCANCELED:
                     if non_canceled_num in indexes:
                         self.show_archieved_trade(t)
-                    non_canceled_num += 1
-
-    def save_trades(self, dir_path, n=None):
-        showed = 1
-        if self.archieved_trades:
-            print(dir_path)
-            os.makedirs(dir_path, exist_ok=True)
-        for t in self.archieved_trades:
-            if t.closed_state != POSCANCELED:
-                with open(dir_path + f"trade{showed}.pkl", "wb") as f:
-                    pkl.dump(t, f)
-                showed += 1
-            if n != None and showed >= n:
-                break
-        with open(dir_path + f"trade_count.pkl", "wb") as f:
-                    pkl.dump(showed-1, f)
-            
-
+                    non_canceled_num += 1            
         
     def fill_ended_trade_logger(self, logger):
         for t in self.archieved_trades:
             if t.closed_state == SUCCESS or t.closed_state == STOPPED:
                 msg = t.ended_trade_to_str()+"\n"
                 logger.info(msg)
-
-
-def show_saved_trade(t: Trade, exchange, symbol, interval, width=1, show=True):
-    st = t.points[0]
-    end = t.dt_closed
-    window_t_delta = (end - st)*width
-    st = st - window_t_delta
-    end = end + window_t_delta
-    d = Chart(exchange, symbol, interval, st, end)
-    return show_trade(d, t, show)
-
-def html_from_saved_trade(path_to_saved_trades, path_to_html, trade_no, exchange, symbol, interval):
-    if os.path.exists(path_to_saved_trades) and os.path.isfile(path_to_saved_trades + f"trade{trade_no}.pkl"):
-        with open(path_to_saved_trades + f"trade{trade_no}.pkl", "rb") as f:
-            t = pkl.load(f)
-        fig = show_saved_trade(t, exchange, symbol, interval, show=False)
-        fig.update_layout(title=f"Trade number {trade_no}")
-        os.makedirs("/".join(path_to_html.split("/")[:-1]), exist_ok=True)
-        fig.write_html(path_to_html)
-    else:
-        raise FileNotFoundError("Directory or trade file does not exist.")
-
-
-
-

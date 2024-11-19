@@ -2,10 +2,9 @@ from typing import Callable, Concatenate, Any
 from datetime import datetime
 from abc import ABC, abstractmethod
 
-from .chart import Chart
-
-
 type Points = list[datetime]
+
+from .chart import Chart
 
 # TODO
 type Visuals = Any

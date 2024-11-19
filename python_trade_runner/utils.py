@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 
-from .constants import LONG, SHORT
+from .constants import LONG, SHORT, PATH_TO_DATA
 
 class Interval(Enum):
     M1:timedelta = timedelta(seconds=60)
@@ -133,10 +133,13 @@ class Exchange(Enum):
             raise ValueError("Exchange not recognized")
 
 # fees_maker,fees_taker
-FEES = {Exchange.BYBIT:(0.0001,0.0006)}
+FEES = {
+    Exchange.BYBIT: (0.0001,0.0006),
+    Exchange.BINANCE: (0.00025,0.00075)
+}
 
 def get_file(exchange:Exchange, symbol:Symbol, interval:Interval):
-    return f"data/{exchange.to_str()}/{symbol.to_str()}/{exchange.to_str()}-{symbol.to_str()}-{interval.to_str()}.csv"
+    return f"{PATH_TO_DATA}/{exchange.to_str()}/{symbol.to_str()}/{exchange.to_str()}-{symbol.to_str()}-{interval.to_str()}.csv"
 
 class Candlestick():
     def __init__(self, o=None, h=None, l=None, c=None):

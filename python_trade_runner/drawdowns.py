@@ -48,6 +48,5 @@ def get_percentile(likelihood, risk, wr, R, trade_streak, sample_size):
 
 def risk_to_use(max_drawdown:float, wr:float, R:float, trade_streak:int, sample_size:int, likelihood:float):
     f = lambda x: get_percentile(likelihood, x, wr, R, trade_streak, sample_size)-max_drawdown
-    risk = fsolve(f, 0.005)
-    print(f"Percentile {get_percentile(likelihood, risk, wr, R, trade_streak, sample_size)}")
+    risk = fsolve(f, 0.0001)
     return risk

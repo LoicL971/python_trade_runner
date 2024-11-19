@@ -10,3 +10,4 @@ LONG = 1
 SHORT = -1
 FEESMAKER = 0
 FEESTAKER = 1
+PATH_TO_DATA = "test/data"

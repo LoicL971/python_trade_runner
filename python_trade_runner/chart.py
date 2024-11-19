@@ -4,6 +4,7 @@ import math as m
 import numpy as np
 
 from .utils import Interval,Symbol,Exchange,Candlestick,get_file
+from .pattern import Points
 
 vect_cds = np.vectorize(Candlestick)
 vect_dts = np.vectorize(lambda ts:datetime.fromisoformat(ts))
@@ -11,7 +12,7 @@ vect_dts = np.vectorize(lambda ts:datetime.fromisoformat(ts))
 type Trend = dict[datetime, list[datetime]]
 
 # TODO: include volumes, funding rate, open interests...
-def create_prices(exchange:Exchange, symbol:Symbol, interval:Interval, first_datetime, last_datetime) -> tuple[dict[datetime, Candlestick], datetime]:
+def create_prices(exchange:Exchange, symbol:Symbol, interval:Interval, first_datetime: datetime, last_datetime: datetime) -> tuple[dict[datetime, Candlestick], datetime]:
     prices: dict[datetime, Candlestick] = {}
     f = get_file(exchange, symbol, interval)
 
@@ -36,7 +37,7 @@ def create_prices(exchange:Exchange, symbol:Symbol, interval:Interval, first_dat
     prices = dict(zip(dts, cds))
     return prices, dts[-1]
 
-def update_trends_from_end_points(start_to_ends, end_to_starts, new_end_points, start_point, left_opt=False):
+def update_trends_from_end_points(start_to_ends: Trend, end_to_starts: Trend, new_end_points: Points, start_point: datetime, left_opt: bool = False) -> None:
     if new_end_points:
         start_to_ends[start_point] = new_end_points.copy()
         if left_opt:
@@ -46,7 +47,7 @@ def update_trends_from_end_points(start_to_ends, end_to_starts, new_end_points, 
             for end_point in new_end_points:
                 end_to_starts[end_point].append(start_point)
 
-def update_trends_from_start_points(start_to_ends, end_to_starts, new_start_points, end_point, new_left_opt_to_ignore=None):
+def update_trends_from_start_points(start_to_ends: Trend, end_to_starts: Trend, new_start_points: Points, end_point: datetime, new_left_opt_to_ignore: datetime = None) -> None:
     if new_start_points:
         end_to_starts[end_point] = new_start_points.copy()
         for start_point in new_start_points:
@@ -313,35 +314,35 @@ class Chart(object):
     def get_interval(self) -> Interval:
         return self.interval
     
-    def remove_left_min_from_trends(self, mi: datetime):
+    def remove_left_min_from_trends(self, mi: datetime) -> None:
         end_points = self.uptrends_start_to_ends[mi]
         del self.uptrends_start_to_ends[mi]
         for ma in end_points:
             self.uptrends_end_to_starts[ma] = self.uptrends_end_to_starts[ma][1:]
         del self.downtrends_end_to_starts[mi]
     
-    def remove_left_max_from_trends(self, ma: datetime):
+    def remove_left_max_from_trends(self, ma: datetime) -> None:
         end_points = self.downtrends_start_to_ends[ma]
         del self.downtrends_start_to_ends[ma]
         for mi in end_points:
             self.downtrends_end_to_starts[mi] = self.downtrends_end_to_starts[mi][1:]
         del self.uptrends_end_to_starts[ma]
     
-    def remove_right_min_from_trends(self, mi: datetime):
+    def remove_right_min_from_trends(self, mi: datetime) -> None:
         start_points = self.downtrends_end_to_starts[mi]
         del self.downtrends_end_to_starts[mi]
         for ma in start_points:
             self.downtrends_start_to_ends[ma] = self.downtrends_start_to_ends[ma][:-1]
         del self.uptrends_start_to_ends[mi]
     
-    def remove_right_max_from_trends(self, ma: datetime):
+    def remove_right_max_from_trends(self, ma: datetime) -> None:
         start_points = self.uptrends_end_to_starts[ma]
         del self.uptrends_end_to_starts[ma]
         for mi in start_points:
             self.uptrends_start_to_ends[mi] = self.uptrends_start_to_ends[mi][:-1]
         del self.downtrends_start_to_ends[ma]
 
-    def update_left_opt(self):
+    def update_left_opt(self) -> tuple[bool, bool]:
         p1 = self.get_prices(self.first_datetime)
         p2 = self.get_prices(self.first_datetime + self.delta_t)
         #min
@@ -371,7 +372,7 @@ class Chart(object):
             new_left_max = True
         return new_left_min,new_left_max
 
-    def update_right_opt(self):
+    def update_right_opt(self) -> tuple[bool, bool]:
         p1 = self.get_prices(self.last_datetime - self.delta_t)
         p2 = self.get_prices(self.last_datetime)
         #min
@@ -392,7 +393,7 @@ class Chart(object):
         new_right_max = p1[1] <= p2[1]
         return new_right_min,new_right_max
 
-    def update_left_trends(self, new_left_min: bool, new_left_max: bool):        
+    def update_left_trends(self, new_left_min: bool, new_left_max: bool) -> None:        
         if new_left_min:
             end_points = self.find_uptrends_from_min(0)
             update_trends_from_end_points(self.uptrends_start_to_ends, self.uptrends_end_to_starts, end_points, self.first_datetime, left_opt=True)
@@ -400,7 +401,7 @@ class Chart(object):
             end_points = self.find_downtrends_from_max(0)
             update_trends_from_end_points(self.downtrends_start_to_ends, self.downtrends_end_to_starts, end_points, self.first_datetime, left_opt=True)
 
-    def update_right_trends(self, new_left_min: bool, new_left_max: bool, new_right_min: bool, new_right_max: bool):
+    def update_right_trends(self, new_left_min: bool, new_left_max: bool, new_right_min: bool, new_right_max: bool) -> None:
         if new_right_min:
             start_points = self.find_downtrends_from_min(len(self.mins)-1)
             if new_left_max and start_points and self.first_datetime == start_points[0]:
@@ -418,7 +419,7 @@ class Chart(object):
     def update_emas():
         pass
     
-    def add_new_points_to_trends(self, new_left_min: bool, new_left_max: bool, new_right_min: bool, new_right_max: bool):
+    def add_new_points_to_trends(self, new_left_min: bool, new_left_max: bool, new_right_min: bool, new_right_max: bool) -> None:
         if new_left_min:
             self.downtrends_end_to_starts[self.first_datetime] = []
             self.uptrends_start_to_ends[self.first_datetime] = []
@@ -435,7 +436,7 @@ class Chart(object):
         self.update_right_trends(new_left_min, new_left_max, new_right_min, new_right_max)
 
         
-    def add_next_data(self, dt: datetime, cds: Candlestick):
+    def add_next_data(self, dt: datetime, cds: Candlestick) -> None:
         if dt != self.last_datetime + self.delta_t:
             msg = "Not adjacent new timestamp, got timestamp : " + str(dt) + " while expecting : " + str(self.last_datetime + self.delta_t)
             raise ValueError(msg)
