@@ -23,7 +23,6 @@ A Python helper for backtesting and running trading strategies.
   - [3. Define Your Strategy](#3-define-your-strategy)
   - [4. Backtest Your Strategy](#4-backtest-your-strategy)
   - [5. Analyze Results](#5-analyze-results)
-- [Examples](#examples)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
@@ -50,7 +49,7 @@ You can set your custom data folder by overwriting `PATH_TO_DATA`.
 
 You can create a data folder and reference it by overwriting `PATH_TO_DATA`.
 
-### 2. Import anything required from the package
+### 2. Import required modules
 Import all necessary modules or specific ones as needed:
 ```python
 from python_trade_runner import *  # Or import specific classes/functions
@@ -84,14 +83,25 @@ trade_builder = TradeBuilder(
 )
 ```
 
-Here’s a visual representation of the setup:
-<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/setup.png" alt="Setup example" width="400" />
+#### *Trade Position Calculation*
+In this example, the trade position is defined using the following parameters:
+
+- **Entry Level**: The maximum candlestick price at point **C**.
+- **Stop Level**: The minimum candlestick price at point **B**.
+- **Profit Level**: Calculated using the formula:
+  \[
+  \text{Profit Level} = 2 \times (\text{candlestick max price from point C}) - (\text{candlestick min price from point B})
+  \]
+
+This means the trade aims for a reward twice the distance between the max price at point **C** and the min price at point **B**. Here's how it maps to the strategy:
+
+1. **Entry Level**: This defines where the trade will open, based on the identified high at point **C**.
+2. **Stop Level**: This is the point at which the trade will exit to limit losses, based on the low at point **B**.
+3. **Profit Level**: This sets the target price, aiming for a reward twice the risk, based on the difference between the highs and lows.
 
 
-Create a trade builder that computes a trade position from your pattern. A trade position is composed of an entry level, a stop exit level and profit exit level. The following trade builder example computes a trade position as follows:
-entry_level = candlestick max price from point C
-stop_level = candlestick min price from point B
-profit_level = 2 * candlestick max price from point C - candlestick min price from point B
+#### *Visual representation of a setup*
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/setup.png" alt="Setup example" width="600" />
 
 #### Initialize Backtest Object
 ```python
@@ -124,7 +134,7 @@ backtest.initialize_chart()
 backtest.step_until_end()
 ```
 
-### 5. Analyse results 
+### 5. Analyze results 
 After the backtest, analyze the results:
 ```python
 print(f"Winrate: {b.get_results().get_winrate()}") # 0.5790671217292378
@@ -142,13 +152,13 @@ print(f"Final Balance: {b.balance}") # 1119.747233093188
 ```python
 b.get_results().plot_balances()
 ```
-<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/balances.png" alt="Plotted balances" width="400" />
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/balances.png" alt="Plotted balances" width="600" />
 
 - Show specific trades:
 ```python
 b.get_results().show_some_archieved_trades(indexes=[25,26])
 ```
-<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/trade.png" alt="Plotted trade" width="400" />
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/trade.png" alt="Plotted trade" width="600" />
 
 ## License
 This project is licensed under the MIT License. See the LICENSE.txt file for details.
