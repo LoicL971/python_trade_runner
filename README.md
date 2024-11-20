@@ -1,2 +1,157 @@
 # python_trade_runner
-Helper for backtesting and running trading strategies
+
+A Python helper for backtesting and running trading strategies.
+
+**python_trade_runner** is a Python package designed to assist in backtesting and executing trading strategies. It provides tools to simulate trading strategies on historical data and facilitates their deployment in live trading environments.
+
+---
+
+## Features
+
+- **Backtesting Framework**: Simulate trading strategies against historical market data to evaluate performance and robustness.
+- **Live Trading Support** *(coming soon)*: Seamlessly transition from backtesting to live trading.
+- **Modular Design**: Easily integrate custom strategies and indicators.
+
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+  - [1. Import Your Data](#1-import-your-data)
+  - [2. Import Required Modules](#2-import-required-modules)
+  - [3. Define Your Strategy](#3-define-your-strategy)
+  - [4. Backtest Your Strategy](#4-backtest-your-strategy)
+  - [5. Analyze Results](#5-analyze-results)
+- [Examples](#examples)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+---
+
+## Installation
+
+To install the package, clone the repository and install the dependencies:
+
+```bash
+git clone https://github.com/loicl971/python_trade_runner.git
+cd python_trade_runner
+pip install -r requirements.txt
+```
+
+## Getting started
+### 1. Import your data
+Your financial data should follow the same format as the files in `test/data`.
+
+- **Data Format**: The dataset should be a CSV file containing candlestick data with the following six columns:
+    - `timestamp`, `open`, `high`, `low`, `close` and `volume`
+- **Path Structure**: `{PATH_TO_DATA}/{exchange}/{symbol}/{exchange}-{symbol}-{interval}.csv`
+You can set your custom data folder by overwriting `PATH_TO_DATA`.
+
+You can create a data folder and reference it by overwriting `PATH_TO_DATA`.
+
+### 2. Import anything required from the package
+Import all necessary modules or specific ones as needed:
+```python
+from python_trade_runner import *  # Or import specific classes/functions
+```
+
+### 3. Define your strategy
+#### Create a Trading Pattern
+Define a list of patterns to design your trading strategy. For example, the following defines a [double bottom pattern](https://www.investopedia.com/terms/d/doublebottom.asp):
+```python
+pattern_list = []
+pattern_list.append(AddPoint(0, add_last_datetime))
+pattern_list.append(AddPoint(0, add_uptrend, 0, True))
+pattern_list.append(AddPoint(0, add_downtrend, 0, True))
+pattern_list.append(AddPoint(0, add_uptrend, 0, True))
+pattern_list.append(AddPoint(0, add_downtrend, 0, True))
+pattern_list.append(FilterPoint(check_highs, 2, 0))
+pattern_list.append(FilterPoint(check_highs, 4, 2))
+pattern_list.append(FilterPoint(check_lows, 1, 3))
+```
+
+#### Create a Trade Builder
+A trade builder calculates the trade position based on your pattern, including entry, stop loss, and profit levels:
+```python
+trade_builder = TradeBuilder(
+    [(2, 1, 1)],
+    [(1, 2, 1)],
+    [(1, 2, -1), (2, 1, 2)],
+    market_entry=True,
+    max_trade_duration_params=[0, 3, 0.5],
+    visual_price_index=[1, 2, 1, 2, 1]
+)
+```
+
+Here’s a visual representation of the setup:
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/setup.png" alt="Setup example" width="400" />
+
+
+Create a trade builder that computes a trade position from your pattern. A trade position is composed of an entry level, a stop exit level and profit exit level. The following trade builder example computes a trade position as follows:
+entry_level = candlestick max price from point C
+stop_level = candlestick min price from point B
+profit_level = 2 * candlestick max price from point C - candlestick min price from point B
+
+#### Initialize Backtest Object
+```python
+setup = Setup(0, pattern_list, trade_builder)
+
+start = datetime(2022, 6, 15, tzinfo=timezone.utc)
+end = datetime(2022, 6, 21, tzinfo=timezone.utc)
+exchange = Exchange.BINANCE
+symbol = Symbol.BTCUSDT
+interval = Interval.M5
+
+backtest = Backtest(
+    setup_list=[setup],
+    risk_for_setup_id={0: 0.01},
+    start_datetime=start,
+    end_datetime=end,
+    window_size=150,
+    initial_balance=1000,
+    exchange=exchange,
+    symbol=symbol,
+    interval=interval,
+    test_fees=False
+)
+```
+
+### 4. Backtest your strategy
+Run the backtest:
+```python
+backtest.initialize_chart()
+backtest.step_until_end()
+```
+
+### 5. Analyse results 
+After the backtest, analyze the results:
+```python
+print(f"Winrate: {b.get_results().get_winrate()}") # 0.5790671217292378
+print(f"R ratio: {b.get_results().get_r()}") # 1.0
+print(f"Max drawdown: {b.get_results().get_max_drawdown()}") # 0.36480565334278936
+print(f"Expected profit per trade: {b.get_results().get_perf()}") # 0.01941314758239645
+print(f"Succeeded trades: {b.get_results().get_nb_success()}") # 509
+print(f"Stopped trades: {b.get_results().get_nb_stopped()}") # 370
+print(f"Canceled trades: {b.get_results().get_nb_canceled()}") # 408
+print(f"Final Balance: {b.balance}") # 1119.747233093188
+```
+
+#### Visualizations
+- Plot balances:
+```python
+b.get_results().plot_balances()
+```
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/balances.png" alt="Plotted balances" width="400" />
+
+- Show specific trades:
+```python
+b.get_results().show_some_archieved_trades(indexes=[25,26])
+```
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/trade.png" alt="Plotted trade" width="400" />
+
+## License
+This project is licensed under the MIT License. See the LICENSE.txt file for details.
+
+## Acknowledgments
+Special thanks to the open-source community for providing tools and inspiration for this project

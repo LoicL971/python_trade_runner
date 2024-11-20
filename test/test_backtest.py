@@ -26,7 +26,7 @@ def test_backtest_result():
     b = Backtest(setup_list=[setup], risk_for_setup_id={0:0.01}, start_datetime=start, end_datetime=end, window_size=150, initial_balance=1000, 
             exchange=exchange, symbol=symbol, interval=interval, test_fees=False)
     b.initialize_chart()
-    b.step_untill_end()
+    b.step_until_end()
     result = b.get_results()
     assert result.get_winrate() ==  0.5294117647058824
     assert result.get_r() ==  1.0
@@ -53,7 +53,7 @@ def test_deserialized_backtest_result():
     b = Backtest(setup_list=[setup], risk_for_setup_id={0:0.01}, start_datetime=start, end_datetime=end, window_size=150, initial_balance=1000, 
             exchange=exchange, symbol=symbol, interval=interval, test_fees=False)
     b.initialize_chart()
-    b.step_untill_end()
+    b.step_until_end()
     result = b.get_results()
     assert result.get_winrate() ==  0.5294117647058824
     assert result.get_r() ==  1.0

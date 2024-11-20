@@ -126,7 +126,7 @@ class Backtest(object):
         self.analyse_info()
         self.incr_dt()
 
-    def step_untill_end(self):
+    def step_until_end(self):
         while self.current_dt < self.end_datetime:
             self.step()
         return self
