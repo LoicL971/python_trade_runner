@@ -89,9 +89,9 @@ In this example, the trade position is defined using the following parameters:
 - **Entry Level**: The maximum candlestick price at point **C**.
 - **Stop Level**: The minimum candlestick price at point **B**.
 - **Profit Level**: Calculated using the formula:
-  \[
+  $
   \text{Profit Level} = 2 \times (\text{candlestick max price from point C}) - (\text{candlestick min price from point B})
-  \]
+  $
 
 This means the trade aims for a reward twice the distance between the max price at point **C** and the min price at point **B**. Here's how it maps to the strategy:
 
