@@ -12,9 +12,9 @@ vect_dts = np.vectorize(lambda ts:datetime.fromisoformat(ts))
 type Trend = dict[datetime, list[datetime]]
 
 # TODO: include volumes, funding rate, open interests...
-def create_prices(exchange:Exchange, symbol:Symbol, interval:Interval, first_datetime: datetime, last_datetime: datetime) -> tuple[dict[datetime, Candlestick], datetime]:
+def create_prices(exchange:Exchange, symbol:Symbol, interval:Interval, first_datetime: datetime, last_datetime: datetime, data_dir_path: str | None = None) -> tuple[dict[datetime, Candlestick], datetime]:
     prices: dict[datetime, Candlestick] = {}
-    f = get_file(exchange, symbol, interval)
+    f = get_file(exchange, symbol, interval, data_dir_path)
 
     df = read_csv(f)
     first_dt = datetime.fromisoformat(df.iloc[0,0])
@@ -59,7 +59,7 @@ def create_emas(prices, first_datetime, last_datetime, emas) -> dict:
     pass
 
 class Chart(object):
-    def __init__(self, exchange:Exchange, symbol:Symbol, interval:Interval, start, end, need_trends=False, emas = []):
+    def __init__(self, exchange:Exchange, symbol:Symbol, interval:Interval, start, end, need_trends=False, emas = [], data_dir_path: str | None = None):
         self.delta_t: timedelta = interval.value
         self.exchange = exchange
         self.symbol = symbol
@@ -68,7 +68,7 @@ class Chart(object):
         self.last_datetime = interval.round_time(end)
         self.need_trends = need_trends
         self.need_emas = emas != []
-        self.prices, self.last_datetime = create_prices(exchange, symbol, interval, self.first_datetime, self.last_datetime)
+        self.prices, self.last_datetime = create_prices(exchange, symbol, interval, self.first_datetime, self.last_datetime, data_dir_path)
         if self.need_trends:
             self.mins, self.maxs = self.create_optimums()
             self.uptrends_end_to_starts,self.uptrends_start_to_ends = self.create_uptrends()

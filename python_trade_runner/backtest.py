@@ -80,10 +80,10 @@ class Backtest(object):
     def get_results(self):
         return self.performance_manager
 
-    def initialize_chart(self):
-        self.CHART = Chart(self.exchange, self.symbol, self.interval, self.start_datetime, self.end_datetime, need_trends=False)
+    def initialize_chart(self, data_dir_path: str | None = None):
+        self.CHART = Chart(self.exchange, self.symbol, self.interval, self.start_datetime, self.end_datetime, need_trends=False, data_dir_path=data_dir_path)
         self.current_dt = self.start_datetime + self.interval.value*(self.window_size + 1)
-        self.current_chart = Chart(self.exchange, self.symbol, self.interval, self.start_datetime, self.current_dt-self.interval.value, need_trends=True)
+        self.current_chart = Chart(self.exchange, self.symbol, self.interval, self.start_datetime, self.current_dt-self.interval.value, need_trends=True, data_dir_path=data_dir_path)
 
     def check_all_trades(self) -> None:
         cds = self.current_chart.get_prices(self.current_chart.last_datetime)

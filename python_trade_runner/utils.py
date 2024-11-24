@@ -138,8 +138,11 @@ FEES = {
     Exchange.BINANCE: (0.00025,0.00075)
 }
 
-def get_file(exchange:Exchange, symbol:Symbol, interval:Interval):
-    return f"{PATH_TO_DATA}/{exchange.to_str()}/{symbol.to_str()}/{exchange.to_str()}-{symbol.to_str()}-{interval.to_str()}.csv"
+def get_file(exchange:Exchange, symbol:Symbol, interval:Interval, data_dir_path: str | None = None):
+    path = PATH_TO_DATA
+    if data_dir_path:
+        path = data_dir_path
+    return f"{path}/{exchange.to_str()}/{symbol.to_str()}/{exchange.to_str()}-{symbol.to_str()}-{interval.to_str()}.csv"
 
 class Candlestick():
     def __init__(self, o=None, h=None, l=None, c=None):

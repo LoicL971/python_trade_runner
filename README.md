@@ -130,21 +130,24 @@ backtest = Backtest(
 ### 4. Backtest your strategy
 Run the backtest:
 ```python
+# Use custom data here if needed
+# backtest.initialize_chart(PATH_TO_DATA)
 backtest.initialize_chart()
+
 backtest.step_until_end()
 ```
 
 ### 5. Analyze results 
 After the backtest, analyze the results:
 ```python
-print(f"Winrate: {b.get_results().get_winrate()}") # 0.5790671217292378
+print(f"Winrate: {b.get_results().get_winrate()}") # 17.05%
 print(f"R ratio: {b.get_results().get_r()}") # 1.0
-print(f"Max drawdown: {b.get_results().get_max_drawdown()}") # 0.36480565334278936
-print(f"Expected profit per trade: {b.get_results().get_perf()}") # 0.01941314758239645
-print(f"Succeeded trades: {b.get_results().get_nb_success()}") # 509
-print(f"Stopped trades: {b.get_results().get_nb_stopped()}") # 370
-print(f"Canceled trades: {b.get_results().get_nb_canceled()}") # 408
-print(f"Final Balance: {b.balance}") # 1119.747233093188
+print(f"Max drawdown: {b.get_results().get_max_drawdown()}") # 17.05%
+print(f"Expected profit per trade: {b.get_results().get_perf()}") # -2.16%
+print(f"Succeeded trades: {b.get_results().get_nb_success()}") # 27
+print(f"Stopped trades: {b.get_results().get_nb_stopped()}") # 24
+print(f"Canceled trades: {b.get_results().get_nb_canceled()}") # 28
+print(f"Final Balance: {b.balance}") # 972.30
 ```
 
 #### Visualizations

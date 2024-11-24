@@ -146,21 +146,21 @@ class PerformanceManager(object):
         self.analyse()
         plot_balances(self.dts, self.historical_balances)
     
-    def show_archieved_trade(self, t, width=1, show=True):
+    def show_archieved_trade(self, t, width=1, show=True, data_dir_path: str | None = None):
         st = t.points[0]
         end = t.dt_closed
         window_t_delta = (end - st)*width
         st = st - window_t_delta
         end = end + window_t_delta
-        d = Chart(self.exchange, self.symbol, self.interval, st, end)
+        d = Chart(self.exchange, self.symbol, self.interval, st, end, data_dir_path)
         return show_trade(d, t, show)
 
-    def show_some_archieved_trades(self, n=None, indexes=[]):
+    def show_some_archieved_trades(self, n=None, indexes=[], data_dir_path: str | None = None):
         if n != None:
             showed = 0
             for t in self.archieved_trades:
                 if t.closed_state != POSCANCELED:
-                    self.show_archieved_trade(t)
+                    self.show_archieved_trade(t, data_dir_path=data_dir_path)
                     showed += 1
                 if showed >= n:
                     break
@@ -169,7 +169,7 @@ class PerformanceManager(object):
             for t in self.archieved_trades:
                 if t.closed_state != POSCANCELED:
                     if non_canceled_num in indexes:
-                        self.show_archieved_trade(t)
+                        self.show_archieved_trade(t, data_dir_path=data_dir_path)
                     non_canceled_num += 1            
         
     def fill_ended_trade_logger(self, logger):
