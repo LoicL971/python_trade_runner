@@ -101,7 +101,7 @@ This means the trade aims for a reward twice the distance between the max price 
 
 
 #### *Visual representation of a setup*
-<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/setup.png" alt="Setup example" width="600" />
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/setup.png" alt="Setup example" width="600" />
 
 #### Initialize Backtest Object
 ```python
@@ -152,13 +152,13 @@ print(f"Final Balance: {b.balance}") # 1119.747233093188
 ```python
 b.get_results().plot_balances()
 ```
-<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/balances.png" alt="Plotted balances" width="600" />
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/balances.png" alt="Plotted balances" width="600" />
 
 - Show specific trades:
 ```python
 b.get_results().show_some_archieved_trades(indexes=[25,26])
 ```
-<img src="https://github.com/LoicL971/python_trade_runner/blob/main/images/trade.png" alt="Plotted trade" width="600" />
+<img src="https://github.com/LoicL971/python_trade_runner/blob/main/trade.png" alt="Plotted trade" width="600" />
 
 ## License
 This project is licensed under the MIT License. See the LICENSE.txt file for details.
