@@ -5,12 +5,8 @@ __pycache__/
 # Others
 *.pkl
 .vscode/
-main.py
-mainChasse.py
-drawdowns_test.py
 dist
 build
-tests.py
 
 
 # Byte-compiled / optimized / DLL files

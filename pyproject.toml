@@ -28,7 +28,6 @@ dynamic = ["version"]
 [project.optional-dependencies]
 dev = [
     "pytest", 
-    "matplotlib"
 ]
 
 [project.urls]
